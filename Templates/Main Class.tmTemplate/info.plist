@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>command</key>
+	<string>if [[ ! -f "$TM_NEW_FILE" ]]; then
+   TM_YEAR=`date +%Y` \
+   TM_DATE=`date +%Y-%m-%d` \
+   perl -pe 's/\$\{([^}]*)\}/$ENV{$1}/g' \
+      &lt; empty_class.java &gt; "$TM_NEW_FILE"
+fi</string>
+	<key>extension</key>
+	<string>java</string>
+	<key>name</key>
+	<string>Main Class</string>
+	<key>uuid</key>
+	<string>C0A8E2EE-FD37-43AF-A68E-E436F7B930C9</string>
+</dict>
+</plist>

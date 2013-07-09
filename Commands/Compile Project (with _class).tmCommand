@@ -3,20 +3,20 @@
 <plist version="1.0">
 <dict>
 	<key>beforeRunningCommand</key>
-	<string>saveActiveFile</string>
+	<string>saveModifiedFiles</string>
 	<key>command</key>
-	<string>TM_JAVAMATE_GET_ARGS=1 javamate_bootstrap2.sh --compile_and_run</string>
+	<string>javamate_bootstrap2.sh --compile_project_class</string>
 	<key>input</key>
 	<string>document</string>
 	<key>keyEquivalent</key>
-	<string>@R</string>
+	<string>^~@C</string>
 	<key>name</key>
-	<string>Compile &amp; Run (with args)</string>
+	<string>Compile Project (with .class)</string>
 	<key>output</key>
 	<string>showAsHTML</string>
 	<key>scope</key>
 	<string>source.java</string>
 	<key>uuid</key>
-	<string>35FBDE0E-5FD1-4D28-B0C7-ED59698CA36E</string>
+	<string>22C90906-E6C1-4C8C-A1E6-10C423C242BC</string>
 </dict>
 </plist>

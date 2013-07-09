@@ -5,18 +5,18 @@
 	<key>beforeRunningCommand</key>
 	<string>saveActiveFile</string>
 	<key>command</key>
-	<string>TM_JAVAMATE_GET_ARGS=1 javamate_bootstrap2.sh --compile_and_run</string>
+	<string>TM_JAVAMATE_GET_ARGS=1 javamate_bootstrap2.sh --compile_project_run</string>
 	<key>input</key>
 	<string>document</string>
 	<key>keyEquivalent</key>
-	<string>@R</string>
+	<string>^~@R</string>
 	<key>name</key>
-	<string>Compile &amp; Run (with args)</string>
+	<string>Compile Project &amp; Run (with args)</string>
 	<key>output</key>
 	<string>showAsHTML</string>
 	<key>scope</key>
 	<string>source.java</string>
 	<key>uuid</key>
-	<string>35FBDE0E-5FD1-4D28-B0C7-ED59698CA36E</string>
+	<string>731F1AEB-1E96-4109-B491-F8ACD422405E</string>
 </dict>
 </plist>

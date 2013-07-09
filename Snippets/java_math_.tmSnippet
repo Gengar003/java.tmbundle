@@ -3,14 +3,14 @@
 <plist version="1.0">
 <dict>
 	<key>content</key>
-	<string>static public final ${1:String} ${2:var} = $3;$0</string>
+	<string>java.math.</string>
 	<key>name</key>
-	<string>constant</string>
+	<string>java.math.</string>
 	<key>scope</key>
 	<string>source.java</string>
 	<key>tabTrigger</key>
-	<string>co</string>
+	<string>j.m</string>
 	<key>uuid</key>
-	<string>8CD02FE6-B5EE-4335-AFDF-7CC02C969563</string>
+	<string>592F2823-7A2B-4881-99A4-7A18D3623902</string>
 </dict>
 </plist>
