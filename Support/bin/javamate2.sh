@@ -8,10 +8,31 @@ shift
 SOURCE="$1"
 shift
 
+# Are we just printing out our version?
+if [ "$1" = "--version" ]
+then
+	"$TM_JAVA" -version 2>&1 | head -1
+    exit 0
+fi
+
+# Handy debug funtion to print a key and a value, IF the global debug flag is set.
+debug() {
+	if [[ "1" == "$TM_DEBUG" || "on" == "$TM_DEBUG" || "true" == "$TM_DEBUG" ]]
+		then
+		echo -e "DEBUG: $1"
+		shift
+		echo -e "\t$*"
+	fi
+}
+
 # Get filename and extension information from the file that was active when we were invoked.
 FILENAME=$(basename "$SOURCE")
 EXTENSION=${FILENAME##*.}
 CLASS=$(basename -s .$EXTENSION "$SOURCE")
+
+debug "Filename" "$FILENAME"
+debug "File Extension" "$EXTENSION"
+debug "Class File" "$CLASS"
 
 # Use the Habanero Java runtime, if it's a Habanero Java file.
 if [ `echo $EXTENSION | tr [:upper:] [:lower:]` = "hj" ]
@@ -45,13 +66,7 @@ if [ `echo $EXTENSION | tr [:upper:] [:lower:]` = "hj" ]
 	
 	# We need to prefix the rest of our JVM options with -J to get them to java, and not hj.
 	PREFIX="-J"
-fi
-
-# Are we just printing out our version?
-if [ "$1" = "--version" ]
-then
-	"$TM_JAVA" -version 2>&1 | head -1
-    exit 0
+	debug "Habanero Java Mode" "activated"
 fi
 
 # Make sure we've been asked to perform a valid operation.
@@ -127,6 +142,7 @@ JAVA_MEMORY="$JAVA_HEAP $JAVA_STACK"
 
 # The (temporary) directory that we're going to compile to...
 output="${TMPDIR}tm_javamate.${TM_PID:-$LOGNAME}";
+debug "Output Directory" "$output"
 
 # ... unless we want access to the .class files.
 if [[ "$SWITCH" == "--compile_project_class" ]]; then
@@ -159,8 +175,10 @@ if [[ "$SWITCH" == "--compile_and_run" || "$SWITCH" == "--compile_only" || "$SWI
 		# Habanero java compiler can't process multiple .hj files per compiler invocation, so invoke the compiler once per file.
 		# It also requires different command-line flags.
 		"$TM_JAVAC" -classpath ./:"$TM_J_PC" -destdir "$output" $ENCODING $HJ_GRAPH $HJ_RACEDET "$CLASS"."$EXTENSION"; rc=$?;
+		debug "Compile Command" "$TM_JAVAC" -classpath ./:"$TM_J_PC" -destdir "$output" $ENCODING $HJ_GRAPH $HJ_RACEDET "$CLASS"."$EXTENSION"; rc=$?;
 	else
 		"$TM_JAVAC" -cp ./:"$TM_J_PC" -d "$output" $ENCODING $XLINT "$SOURCE"; rc=$?;
+		debug "Compile Command" "$TM_JAVAC" -cp ./:"$TM_J_PC" -d "$output" $ENCODING $XLINT "$SOURCE"; rc=$?;
 	fi
 	
 	if (($rc >= 1)); then exit $rc; else if [[ "$SWITCH" == "--compile_only" ]]; then echo "$COMPILE_SMSG"; fi; fi
@@ -201,6 +219,7 @@ if [[ "$SWITCH" == "--compile_project" || "$SWITCH" == "--compile_project_run" |
 		rc=$?
 	else
 		"$TM_JAVAC" -classpath ./:"$TM_J_PC" -d "$output" $ENCODING $XLINT @"$COMPILE_THESE"; rc=$?;
+		debug "Compiler Command" "$TM_JAVAC" -classpath ./:"$TM_J_PC" -d "$output" $ENCODING $XLINT @"$COMPILE_THESE"; rc=$?;
 	fi
 	
 	# Print success message and/or exit based on presence or absence of errors.
@@ -214,15 +233,23 @@ TM_J_PC="$output:$TM_J_PC"
 
 # $OLDPWD seems to be a thing that Mac OR Bash does. Either way, let's rely on it!
 EXECUTION_TARGET_PACKAGE=`cat  "$OLDPWD/$CLASS.$EXTENSION" | grep package | awk '{ print substr($2, 0, index( $2, ";" )-1 ) }'`
-EXECUTION_TARGET="$EXECUTION_TARGET_PACKAGE.$CLASS"
+
+# If we're running from the default package, we don't need to qualify the classname
+if [ -n "$EXECUTION_TARGET_PACKAGE" ]
+	then
+	EXECUTION_TARGET="$EXECUTION_TARGET_PACKAGE.$CLASS"
+else
+	EXECUTION_TARGET="$CLASS"
+fi
+
 
 # If we're going to run anything...
 if [[ "$SWITCH" == "--compile_and_run" || "$SWITCH" == "--compile_project_run" ]]
 	then
 	
 	# Execute the java command, with our parameters, targetting our file.
-	
 	"$TM_JAVA" -classpath "$TM_J_PC" $HJ_METRICS $JAVA_MEMORY -Dfile.encoding=utf-8 "$EXECUTION_TARGET" "$@"
+	debug "Run Command" "$TM_JAVA" -classpath "$TM_J_PC" $HJ_METRICS $JAVA_MEMORY -Dfile.encoding=utf-8 "$EXECUTION_TARGET" "$@"
 
 # Or maybe we're going to run a test case file...
 elif [[ "$SWITCH" == "--test" || "$SWITCH" == "--compile_project_test" ]] 
@@ -237,6 +264,7 @@ elif [[ "$SWITCH" == "--test" || "$SWITCH" == "--compile_project_test" ]]
 	# -ea enables assertions, in case someone has mixed JUnit assertions with Java assertions
 	# DO WE WANT THIS? Couldn't find any literature on whether this is advisable or not.
 	"$TM_JAVA" -classpath "$TM_J_PC" -ea $JAVA_MEMORY -Dfile.encoding=utf-8 org.junit.runner.JUnitCore "$EXECUTION_TARGET"
+	debug "Test Command" "$TM_JAVA" -classpath "$TM_J_PC" -ea $JAVA_MEMORY -Dfile.encoding=utf-8 org.junit.runner.JUnitCore "$EXECUTION_TARGET"
 	
 # TODO: Ensure that JAR-making still works, now that we use find to compile everything.
 elif [[ "$SWITCH" == "--compile_project_jar" || "$SWITCH" == "--compile_project_bundle_jar" ]]
